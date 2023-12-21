@@ -25,4 +25,3 @@ COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
 LABEL org.opencontainers.image.source https://github.com/tecandrew/docker-nextdns
 ENV NEXTDNS_PROFILE ""
-ENV NEXTDNS_FORWARDER ""
