@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.31.2 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: nextdns
+  name: nextdns
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      io.kompose.service: nextdns
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.31.2 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/docker-nextdns-default: "true"
+        io.kompose.service: nextdns
+    spec:
+      containers:
+        - name: nextdns
+          image: ghcr.io/tecandrew/docker-nextdns:1.41.0
+          imagePullPolicy: Always
+          env:
+            - name: NEXTDNS_CACHE_SIZE
+              value: 128M
+            - name: NEXTDNS_PROFILE
+              valueFrom:
+                secretKeyRef:
+                  name: nextdns-profile
+                  key: profile1
+            - name: NEXTDNS_REPORT_CLIENT_INFO
+              value: "true"
+            - name: NEXTDNS_MAX_INFLIGHT_REQUESTS
+              value: "2048"
+            - name: NEXTDNS_LOG_QUERIES
+              value: "true"
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - 'dig +time=10 @127.0.0.1 -p $(echo ${NEXTDNS_LISTEN:-:53} | rev | cut -d: -f1 | rev) probe-test.dns.nextdns.io'
+            failureThreshold: 1
+            initialDelaySeconds: 5
+            periodSeconds: 60
+            timeoutSeconds: 10
+          ports:
+            - containerPort: 53
+              hostPort: 53
+              protocol: TCP
+            - containerPort: 53
+              hostPort: 53
+              protocol: UDP
+          resources: {}
+      restartPolicy: Always
+status: {}
