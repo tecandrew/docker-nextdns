@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+  nextdns:
+    container_name: "nextdns"
+    image: "ghcr.io/tecandrew/docker-nextdns:1.41.0"
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    restart: "always"
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+    environment:
+      NEXTDNS_PROFILE: ${NEXTDNS_PROFILE:?NEXTDNS_PROFILE must be set}
+      NEXTDNS_CACHE_SIZE: "10m"
+      NEXTDNS_REPORT_CLIENT_INFO: "true"
+    healthcheck:
+     test: [
+       "CMD", "sh", "-c",
+       "dig +time=10 @127.0.0.1 -p $$(echo $${NEXTDNS_LISTEN:-:53} | rev | cut -d: -f1 | rev) probe-test.dns.nextdns.io"
+     ]
+     interval: "1m"
+     timeout: "10s"
+     retries: 1
+     start_period: "5s"

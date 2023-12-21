@@ -82,6 +82,10 @@ services:
       - "/etc/hosts:/etc/hosts:ro"
 ```
 
+## Kubernetes
+
+See [k8s/README.md](k8s/README.md) for an example.
+
 ## License
 
 [WTFPL](LICENSE) for the `docker-entrypoint.sh` script, since it's rather minimal.
