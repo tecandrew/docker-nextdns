@@ -7,7 +7,7 @@ ARG TARGETPLATFORM
 
 # example: https://github.com/nextdns/nextdns/releases/download/v1.41.0/nextdns_1.41.0_linux_amd64.tar.gz
 RUN case ${TARGETPLATFORM} in \
-      # older arm archs
+      # pi zero w, older arm devices
       "linux/arm/v7") TARGETARCH=armv7 ;; \
       "linux/arm/v6") TARGETARCH=armv6 ;; \
       # apple m1, pi 4, pi 5,
@@ -24,3 +24,5 @@ COPY docker-entrypoint.sh /
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 LABEL org.opencontainers.image.source https://github.com/tecandrew/docker-nextdns
+ENV NEXTDNS_PROFILE ""
+ENV NEXTDNS_FORWARDER ""
