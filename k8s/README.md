@@ -1,6 +1,6 @@
 # NextDNS CLI for Kubernetes
 
-NOTE: This is a WIP. The docker-compose example was converted to Kubernetes using [kompose](https://kompose.io/).
+NOTE: This is a WIP. The docker-compose example was converted to Kubernetes using [kompose](https://kompose.io/) and then messed around with.
 
 0. Obtain your NextDNS Profile ID(s) from the [NextDNS web interface](https://my.nextdns.io)
 
@@ -13,9 +13,9 @@ NOTE: This is a WIP. The docker-compose example was converted to Kubernetes usin
 2. Deploy the NextDNS docker image from Github Container Registry
 
     ```bash
-    kubectl apply -f nextdns-deployment.yaml
-    # view and inspect the deployment
-    kubectl describe deployments nextdns
+    kubectl apply -f nextdns.yaml
+    # view and inspect the daemonset (pods expose on each k8s node available externally)
+    kubectl describe daemonset nextdns
 
     # view and inspect the pods in deployment
     kubectl get pods | grep nextdns
@@ -23,30 +23,11 @@ NOTE: This is a WIP. The docker-compose example was converted to Kubernetes usin
     kubectl logs -f nextdns-<pod-id>
     ```
 
-3. Expose the NextDNS service ports using your k8s LoadBalancer or Ingress controller
+3. Verify the service is working by querying the service using `nslookup` 
 
     ```bash
-    kubectl apply -f nextdns-service.yaml
-    # view and inspect the service
-    k get services | grep nextdns
-    kubectl describe services nextdns
-    ```
-
-4. Verify the service is working by querying the service using `nslookup` 
-
-    ```bash
-    # using the `EXTERNAL-IP` from the service inspection from step 3
+    # using the `EXTERNAL-IP` from any of your node IP network address
     nslookup twitch.tv <EXTERNAL-IP>
     ```
 
 ![](./nslookup-nextdns-logs.png)
-
-
-# Restarting
-
-Delete the services first, then the reapply deployment
-
-```bash
-kubectl delete -f nextdns-service.yaml
-kubectl apply -f nextdns-deployment.yaml
-```

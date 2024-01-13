@@ -1,45 +1,41 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: DaemonSet
 metadata:
-  annotations:
-    kompose.cmd: kompose convert
-    kompose.version: 1.31.2 (HEAD)
-  creationTimestamp: null
-  labels:
-    io.kompose.service: nextdns
   name: nextdns
 spec:
-  replicas: 2
   selector:
     matchLabels:
-      io.kompose.service: nextdns
-  strategy: {}
+      app: nextdns
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert
-        kompose.version: 1.31.2 (HEAD)
-      creationTimestamp: null
       labels:
-        io.kompose.network/docker-nextdns-default: "true"
-        io.kompose.service: nextdns
+        app: nextdns
     spec:
+      hostNetwork: true
       containers:
         - name: nextdns
           image: ghcr.io/tecandrew/docker-nextdns:1.41.0
           imagePullPolicy: Always
           env:
-            - name: NEXTDNS_CACHE_SIZE
-              value: 128M
             - name: NEXTDNS_PROFILE
               valueFrom:
                 secretKeyRef:
                   name: nextdns-profile
                   key: profile1
+            - name: NEXTDNS_SETUP_ROUTER
+              value: "true"
             - name: NEXTDNS_REPORT_CLIENT_INFO
               value: "true"
+            - name: NEXTDNS_MDNS
+              value: "all"
             - name: NEXTDNS_MAX_INFLIGHT_REQUESTS
-              value: "2048"
+              value: "512"
+            - name: NEXTDNS_CACHE_SIZE
+              value: "10MB"
+            - name: NEXTDNS_MAX_TTL
+              value: "5s"
+            - name: NEXTDNS_DEBUG
+              value: "true"
             - name: NEXTDNS_LOG_QUERIES
               value: "true"
           livenessProbe:
@@ -50,8 +46,8 @@ spec:
                 - 'dig +time=10 @127.0.0.1 -p $(echo ${NEXTDNS_LISTEN:-:53} | rev | cut -d: -f1 | rev) probe-test.dns.nextdns.io'
             failureThreshold: 1
             initialDelaySeconds: 5
-            periodSeconds: 60
-            timeoutSeconds: 10
+            periodSeconds: 300
+            timeoutSeconds: 3
           ports:
             - containerPort: 53
               hostPort: 53
@@ -61,4 +57,3 @@ spec:
               protocol: UDP
           resources: {}
       restartPolicy: Always
-status: {}
