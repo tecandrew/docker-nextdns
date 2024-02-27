@@ -88,14 +88,26 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: Build and export Docker image
         uses: docker/build-push-action@v5.1.0
         with:
           builder: ${{ steps.buildx.outputs.name }}
           build-args: |
             NEXTDNS_VERSION=${{ needs.fetch.outputs.nextdns_ver }}
+          tags: ${{ env.IMAGE_NAME }}:latest,${{ env.IMAGE_NAME }}:${{ needs.fetch.outputs.nextdns_ver }}
+
+      - name: Test Image
+        run: |
+          docker run --rm ${{ env.IMAGE_NAME }}:${{ needs.fetch.outputs.nextdns_ver }}
+
+      - name: Push Docker image
+        uses: docker/build-push-action@v5.1.0
+        with:
           platforms: ${{ env.ARCH_LIST }}
           push: true
+          builder: ${{ steps.buildx.outputs.name }}
+          build-args: |
+            NEXTDNS_VERSION=${{ needs.fetch.outputs.nextdns_ver }}
           tags: ${{ env.IMAGE_NAME }}:latest,${{ env.IMAGE_NAME }}:${{ needs.fetch.outputs.nextdns_ver }}
 
   tag:
