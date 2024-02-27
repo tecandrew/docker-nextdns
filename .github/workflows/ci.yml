@@ -26,7 +26,7 @@ jobs:
       - name: Fetch information from GitHub API
         id: release
         run: |
-          NEXTDNS_TAG=$(curl -sL https://api.github.com/repos/nextdns/nextdns/releases/latest | jq -r ".tag_name")
+          NEXTDNS_TAG=$(curl -svL https://api.github.com/repos/nextdns/nextdns/releases/latest | jq -r ".tag_name")
           RELEASE_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) || true)
           RELEASE_NUM=$(echo "$RELEASE_TAG" | rev | cut -d "-" -f1 | rev)
           if [[ -z "$RELEASE_NUM" || "$RELEASE_NUM" = "$RELEASE_TAG" ]]; then
