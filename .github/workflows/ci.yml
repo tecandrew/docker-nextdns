@@ -94,11 +94,11 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           build-args: |
             NEXTDNS_VERSION=${{ needs.fetch.outputs.nextdns_ver }}
-          tags: ${{ env.IMAGE_NAME }}:latest,${{ env.IMAGE_NAME }}:${{ needs.fetch.outputs.nextdns_ver }}
+          tags: ${{ env.IMAGE_NAME }}:latest
 
       - name: Test Image
         run: |
-          docker run --rm ${{ env.IMAGE_NAME }}:${{ needs.fetch.outputs.nextdns_ver }}
+          docker run --rm ${{ env.IMAGE_NAME }}:latest
 
       - name: Push Docker image
         uses: docker/build-push-action@v5.1.0
