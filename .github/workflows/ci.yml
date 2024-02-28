@@ -15,7 +15,7 @@ env:
 jobs:
   fetch:
     name: Fetch latest NextDNS CLI release
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
 
     steps:
       - name: Checkout
@@ -112,7 +112,7 @@ jobs:
 
   tag:
     name: Publish version tag
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     needs: [fetch, build]
 
     steps:
